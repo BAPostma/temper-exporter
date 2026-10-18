@@ -1,0 +1,5 @@
+{
+  "port": 9101,
+  "metric_namespace": "temperature",
+  "metric_subsystem": "temper"
+}

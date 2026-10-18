@@ -1,0 +1,25 @@
+# Build output
+/temper_exporter
+/temper_exporter-*
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Go workspace files (local-only, not meant to be shared)
+go.work
+go.work.sum
+
+# Environment files
+.env
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
