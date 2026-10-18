@@ -11,6 +11,32 @@ A Prometheus exporter for Temper USB temperature sensors.
   (e.g. `0c45:7401`) and `model` is the device's USB product name string.
 - `/` shows an HTML status page listing every detected device (USB port, vendor:product id, manufacturer, model, firmware, hidraw path) and its current reading.
 
+## Install (Debian)
+
+On a Debian or Debian-derivative Linux box (e.g. Raspberry Pi OS, arm64 or armv6), install the latest release as a systemd service with:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/BAPostma/temper-exporter/main/install.sh | sudo bash
+```
+
+This [`install.sh`](install.sh) script:
+
+- detects the machine's architecture (arm64 or armv6) and downloads the matching binary from the latest GitHub release, verifying its SHA256 checksum against the one GitHub records for the asset;
+- installs it to `/usr/local/bin/temper_exporter`;
+- writes a default config to `/etc/temper-exporter/config.json` (only if one doesn't already exist — re-running the script never overwrites your customizations);
+- installs and enables a `temper-exporter.service` systemd unit running as root (hidraw devices are root-owned — see [Run](#run) below), and (re)starts it.
+
+Re-running the same command later upgrades in place to the latest release.
+
+**Useful commands after installation:**
+
+```sh
+systemctl status temper-exporter      # check it's running
+journalctl -u temper-exporter -f      # tail logs
+sudo nano /etc/temper-exporter/config.json   # edit config, then:
+sudo systemctl restart temper-exporter
+```
+
 ## How it works
 
 Device discovery and the USB HID read protocol are inspired by [urwen/temper](https://github.com/urwen/temper): it walks `/sys/bus/usb/devices` to find known Temper vendor/product ids, then reads
