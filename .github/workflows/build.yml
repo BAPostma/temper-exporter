@@ -1,0 +1,46 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - target: build-linux-arm64
+            artifact: temper_exporter-linux-arm64
+          - target: build-linux-armv6
+            artifact: temper_exporter-linux-armv6
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - run: go vet ./...
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            echo "version=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - run: make ${{ matrix.target }}
+
+      - name: Tag binary with version
+        run: mv temper_exporter "${{ matrix.artifact }}-${{ steps.version.outputs.version }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}-${{ steps.version.outputs.version }}
+          path: ${{ matrix.artifact }}-${{ steps.version.outputs.version }}
